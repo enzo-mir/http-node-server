@@ -7,12 +7,12 @@ const server = net.createServer((socket) => {
 
   socket.on("data", (data) => {
     const userAgent = data.toString().split("User-Agent: ", data.toString().length)[1]?.trim();
-    
+
     const initialPath = data.toString().split(" ")[1];
 
     const response = userAgent || initialPath === "/" ? "200 OK" : "404 Not Found";
 
-    socket.write(`HTTP/1.1 ${response}\r\nContent-Type: text/plain\r\nContent-Length: ${userAgent.length}\r\n\r\n${userAgent}`);
+    socket.write(`HTTP/1.1 ${response}\r\nContent-Type: text/plain\r\nContent-Length: ${userAgent?.length || "0"}\r\n\r\n${userAgent}`);
   });
 });
 
