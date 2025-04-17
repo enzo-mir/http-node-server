@@ -15,8 +15,9 @@ const lisFiles = files();
 function fileEndPointResponse(filename, id = 0) {
   if (id >= lisFiles.length) return { status: "404 Not Found" };
   if (lisFiles[id].includes(filename)) {
-    const fileLength = fs.statSync("./tmp/" + lisFiles[id]).size;
-    return { length: fileLength, status: "200 OK" };
+    const content = fs.readFileSync("/tmp/" + lisFiles[id]).toString();
+   
+    return { length:  content.length, status: "200 OK" };
   }
   return fileEndPointResponse(filename, id + 1);
 }
