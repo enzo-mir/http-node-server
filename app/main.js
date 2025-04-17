@@ -8,7 +8,7 @@ const server = net.createServer((socket) => {
   socket.on("data", (data) => {
     const initialPath = data.toString().split(" ")[1];
 
-    const userAgent = initialPath == "/user-agent" ? data.toString().split("User-Agent: ", data.toString().length)[1].trim() : undefined();
+    const userAgent = initialPath == "/user-agent" ? data.toString().split("User-Agent: ", data.toString().length)[1].trim() : undefined;
 
     const path = initialPath.includes("echo") ? initialPath.split("/")[2] : initialPath;
 
