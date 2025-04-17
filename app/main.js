@@ -15,7 +15,7 @@ const server = net.createServer((socket) => {
     const response = "200 OK";
 
     socket.write(
-      `HTTP/1.1 ${response}\r\nContent-Type: text/plain\r\nContent-Length: ${userAgent ? userAgent.length : path.length}\r\n\r\n${userAgent}`
+      `HTTP/1.1 ${response}\r\nContent-Type: text/plain\r\nContent-Length: ${userAgent ? userAgent.length : path.length}\r\n\r\n${userAgent || path}`
     );
   });
 });
