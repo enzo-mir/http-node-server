@@ -18,7 +18,7 @@ const server = net.createServer((socket) => {
       if (initialPath.startsWith(v)) {
         return "200 OK";
       } else {
-        if (index < acceptedPaths.length) {
+        if (id < acceptedPaths.length) {
           response(id++);
         }
         return "404 Not Found";
