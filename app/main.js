@@ -13,9 +13,10 @@ function files() {
 const lisFiles = files();
 
 function fileEndPointResponse(filename, id = 0) {
-  if (id >= lisFiles.length) return "404 Not Found";
+  if (id >= lisFiles.length) return { status: "404 Not Found" };
   if (lisFiles[id].includes(filename)) {
-    return "200 OK";
+    const fileLength = fs.statSync(lisFiles[id]).size;
+    return { length: fileLength, status: "200 OK" };
   }
   return fileEndPointResponse(filename, id + 1);
 }
@@ -40,7 +41,7 @@ const server = net.createServer((socket) => {
     const userAgent = initialPath === "/user-agent" ? data.toString().split("User-Agent: ", data.toString().length)[1].trim() : undefined;
 
     const response = filePath
-      ? fileEndPointResponse(filePath)
+      ? fileEndPointResponse(filePath).status
       : (id = 0) => {
           if (id >= acceptedPaths.length) return "404 Not Found";
           if (acceptedPaths[id].dynamic ? initialPath.startsWith(acceptedPaths[id].path) : initialPath === acceptedPaths[id].path) {
@@ -51,7 +52,7 @@ const server = net.createServer((socket) => {
 
     socket.write(
       `HTTP/1.1 ${response}\r\nContent-Type: ${filePath ? "application/octet-stream" : "text/plain"}\r\nContent-Length: ${
-        userAgent ? userAgent.length : path.length
+        filePath ? fileEndPointResponse(filePath).length : userAgent ? userAgent.length : path.length
       }\r\n\r\n${userAgent || path}`
     );
   });
