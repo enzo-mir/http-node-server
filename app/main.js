@@ -3,7 +3,7 @@ const fs = require("fs");
 
 function files() {
   const files = [];
-  fs.readdirSync("tmp", { recursive: true }).map((file) => {
+  fs.readdirSync("/tmp", { recursive: true }).map((file) => {
     files.push(file);
   });
 
