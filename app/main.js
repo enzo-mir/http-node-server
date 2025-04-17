@@ -6,13 +6,17 @@ const server = net.createServer((socket) => {
   });
 
   socket.on("data", (data) => {
-    const userAgent = data.toString().split("User-Agent: ", data.toString().length)[1]?.trim();
-
     const initialPath = data.toString().split(" ")[1];
+
+    const userAgent = initialPath == "/user-agent" ? data.toString().split("User-Agent: ", data.toString().length)[1].trim : undefined();
+
+    const path = initialPath.includes("echo") ? initialPath.split("/")[2] : initialPath;
 
     const response = "200 OK";
 
-    socket.write(`HTTP/1.1 ${response}\r\nContent-Type: text/plain\r\nContent-Length: ${userAgent?.length || "0"}\r\n\r\n${userAgent}`);
+    socket.write(
+      `HTTP/1.1 ${response}\r\nContent-Type: text/plain\r\nContent-Length: ${userAgent ? userAgent.length : path.length}\r\n\r\n${userAgent}`
+    );
   });
 });
 
