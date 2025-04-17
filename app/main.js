@@ -7,7 +7,8 @@ const server = net.createServer((socket) => {
   });
 
   socket.on("data", (data) => {
-    const path = path.includes("echo") ? data.toString().split(" ")[1] : path.split("/")[2];
+    const initialPath = data.toString().split(" ")[1];
+    const path = initialPath.includes("echo") ? initialPath : path.split("/")[2];
 
     const response = path.includes("echo") ? "404 Not Found" : "200 OK";
 
