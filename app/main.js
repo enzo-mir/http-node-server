@@ -34,4 +34,8 @@ const server = net.createServer((socket) => {
   });
 });
 
+server.on("close", () => {
+  return server.listen(4221, "localhost");
+});
+
 server.listen(4221, "localhost");
