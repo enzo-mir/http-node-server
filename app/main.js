@@ -10,7 +10,7 @@ const server = net.createServer((socket) => {
     const path = data.toString().split(" ")[1];
     const getStr = path.split("/")[2];
 
-    socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${getStr.length}\r\n\r\n${getStr}`);
+    socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${getStr.length || path.length}\r\n\r\n${getStr || path}`);
   });
 });
 
