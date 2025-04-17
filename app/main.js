@@ -20,7 +20,7 @@ const server = net.createServer((socket) => {
 
     const response = (id = 0) => {
       if (id >= acceptedPaths.length) return "404 Not Found";
-      if (acceptedPaths[id].dynamic ? initialPath.startsWith(acceptedPaths[id]) : initialPath === acceptedPaths[id]) {
+      if (acceptedPaths[id].dynamic ? initialPath.startsWith(acceptedPaths[id].path) : initialPath === acceptedPaths[id].path) {
         return "200 OK";
       }
       return response(id + 1);
