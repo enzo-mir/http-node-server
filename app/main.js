@@ -10,7 +10,7 @@ const server = net.createServer((socket) => {
     const initialPath = data.toString().split(" ")[1];
     const path = initialPath.includes("echo") ? initialPath.split("/")[2] : initialPath;
 
-    const response = path.includes("echo") ? "200 OK" : "404 Not Found";
+    const response = initialPath.includes("echo") ? "200 OK" : "404 Not Found";
 
     socket.write(`HTTP/1.1 ${response}\r\nContent-Type: text/plain\r\nContent-Length: ${path.length}\r\n\r\n${path}`);
   });
