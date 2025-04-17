@@ -50,9 +50,9 @@ const server = net.createServer((socket) => {
         };
 
     socket.write(
-      `HTTP/1.1 ${response}\r\nContent-Type: text/plain\r\nContent-Length: ${userAgent ? userAgent.length : path.length}\r\n\r\n${
-        userAgent || path
-      }`
+      `HTTP/1.1 ${response}\r\nContent-Type: ${filePath ? "application/octet-stream" : "text/plain"}\r\nContent-Length: ${
+        userAgent ? userAgent.length : path.length
+      }\r\n\r\n${userAgent || path}`
     );
   });
 });
