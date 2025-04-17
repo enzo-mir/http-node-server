@@ -10,12 +10,12 @@ const server = net.createServer((socket) => {
     const initialPath = data.toString().split(" ")[1];
     const acceptedPaths = ["/echo", "/user-agent", "/"];
 
-    const userAgent = initialPath == "/user-agent" ? data.toString().split("User-Agent: ", data.toString().length)[1].trim() : undefined;
+    const userAgent = initialPath === "/user-agent" ? data.toString().split("User-Agent: ", data.toString().length)[1].trim() : undefined;
 
     const path = initialPath.includes("echo") ? initialPath.split("/")[2] : initialPath;
 
     const response = acceptedPaths.map((v) => {
-      if (initialPath.startsWith(v)) {
+      if (initialPath.includes(v)) {
         return "200 OK";
       } else {
         return "404 Not Found";
