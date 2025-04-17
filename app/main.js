@@ -6,7 +6,7 @@ const server = net.createServer((socket) => {
   });
 
   socket.on("data", (data) => {
-    const userAgent = data.toString().split("User-Agent: ", data.toString().length)[1].trim();
+    const userAgent = data.toString().split("User-Agent: ", data.toString().length)[1];
 
     const initialPath = data.toString().split(" ")[1];
 
