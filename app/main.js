@@ -15,14 +15,9 @@ const server = net.createServer((socket) => {
     const path = initialPath.includes("echo") ? initialPath.split("/")[2] : initialPath;
 
     const response = (id = 0) => {
-      if (initialPath.startsWith(acceptedPaths[id])) {
-        return "200 OK";
-      } else {
-        if (id < acceptedPaths.length) {
-          return response(id++);
-        }
-        return "404 Not Found";
-      }
+      if (id >= acceptedPaths.length) return "404 Not Found";
+      if (initialPath.startsWith(acceptedPaths[id])) return "200 OK";
+      return response(id + 1);
     };
 
     socket.write(
