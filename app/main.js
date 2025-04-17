@@ -1,66 +1,41 @@
-const net = require("net");
 const fs = require("fs");
-
-function files() {
-  const files = [];
-  fs.readdirSync("/tmp", { recursive: true }).map((file) => {
-    files.push(file);
-  });
-
-  return files;
-}
-
-const lisFiles = files();
-
-function fileEndPointResponse(filename, id = 0) {
-  if (id >= lisFiles.length) return { status: "404 Not Found" };
-  if (lisFiles[id].includes(filename)) {
-    const content = fs.readFileSync("/tmp/" + lisFiles[id]).toString();
-   
-    return { length:  content.length, status: "200 OK" };
-  }
-  return fileEndPointResponse(filename, id + 1);
-}
-
+const net = require("net");
+console.log("Logs from your program will appear here!");
 const server = net.createServer((socket) => {
   socket.on("close", () => {
     socket.end();
-    server.close();
   });
-
   socket.on("data", (data) => {
-    const initialPath = data.toString().split(" ")[1];
-    const path = initialPath.includes("echo") ? initialPath.split("/")[2] : initialPath;
-    const filePath = path.includes("/files") ? initialPath.split("/")[2] : undefined;
-    const acceptedPaths = [
-      { path: "/echo", dynamic: true },
-      { path: "/user-agent", dynamic: false },
-      { path: "/", dynamic: false },
-      { path: "/files", dynamic: true },
-    ];
-
-    const userAgent = initialPath === "/user-agent" ? data.toString().split("User-Agent: ", data.toString().length)[1].trim() : undefined;
-
-    const response = filePath
-      ? fileEndPointResponse(filePath).status
-      : (id = 0) => {
-          if (id >= acceptedPaths.length) return "404 Not Found";
-          if (acceptedPaths[id].dynamic ? initialPath.startsWith(acceptedPaths[id].path) : initialPath === acceptedPaths[id].path) {
-            return "200 OK";
-          }
-          return response(id + 1);
-        };
-
-    socket.write(
-      `HTTP/1.1 ${response}\r\nContent-Type: ${filePath ? "application/octet-stream" : "text/plain"}\r\nContent-Length: ${
-        filePath ? fileEndPointResponse(filePath).length : userAgent ? userAgent.length : path.length
-      }\r\n\r\n${userAgent || path}`
-    );
+    const req = data.toString();
+    console.log(req);
+    const path = req.split(" ")[1];
+    if (path === "/") socket.write("HTTP/1.1 200 OK\r\n\r\n");
+    else if (path.startsWith("/files/")) {
+      const directory = process.argv[3];
+      const filename = path.split("/files/")[1];
+      if (fs.existsSync(`${directory}/${filename}`)) {
+        const content = fs.readFileSync(`${directory}/${filename}`).toString();
+        const res = `HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: ${content.length}\r\n\r\n${content}\r\n`;
+        socket.write(res);
+      } else {
+        socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
+      }
+    } else if (path === "/user-agent") {
+      req.split("\r\n").forEach((line) => {
+        if (line.includes("User-Agent")) {
+          const res = line.split(" ")[1];
+          socket.write(
+            `HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${res.length}\r\n\r\n${res}\r\n`
+          );
+        }
+      });
+    } else if (path.startsWith("/echo/")) {
+      const res = path.split("/echo/")[1];
+      socket.write(
+        `HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${res.length}\r\n\r\n${res}\r\n\r`
+      );
+    } else socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
+    socket.end();
   });
 });
-
-server.on("close", () => {
-  return server.listen(4221, "localhost");
-});
-
 server.listen(4221, "localhost");
