@@ -15,7 +15,7 @@ const server = net.createServer((socket) => {
     const path = initialPath.includes("echo") ? initialPath.split("/")[2] : initialPath;
 
     const response = (id = 0) => {
-      if (initialPath.startsWith(v)) {
+      if (initialPath.startsWith(acceptedPaths[id])) {
         return "200 OK";
       } else {
         if (id < acceptedPaths.length) {
