@@ -19,14 +19,16 @@ const server = net.createServer((socket) => {
         return "200 OK";
       } else {
         if (id < acceptedPaths.length) {
-          response(id++);
+          return response(id++);
         }
         return "404 Not Found";
       }
     };
 
     socket.write(
-      `HTTP/1.1 ${response}\r\nContent-Type: text/plain\r\nContent-Length: ${userAgent ? userAgent.length : path.length}\r\n\r\n${userAgent || path}`
+      `HTTP/1.1 ${response()}\r\nContent-Type: text/plain\r\nContent-Length: ${userAgent ? userAgent.length : path.length}\r\n\r\n${
+        userAgent || path
+      }`
     );
   });
 });
