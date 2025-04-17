@@ -6,8 +6,8 @@ const server = net.createServer((socket) => {
   });
 
   socket.on("data", (data) => {
-    const userAgent = data.toString().split("User-Agent: ", data.toString().length)[1];
-
+    const userAgent = data.toString().split("User-Agent: ", data.toString().length)[1]?.trim();
+    
     const initialPath = data.toString().split(" ")[1];
 
     const response = userAgent || initialPath === "/" ? "200 OK" : "404 Not Found";
