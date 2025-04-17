@@ -10,7 +10,7 @@ const server = net.createServer((socket) => {
 
     const initialPath = data.toString().split(" ")[1];
 
-    const response = userAgent || initialPath === "/" ? "200 OK" : "404 Not Found";
+    const response = "200 OK";
 
     socket.write(`HTTP/1.1 ${response}\r\nContent-Type: text/plain\r\nContent-Length: ${userAgent?.length || "0"}\r\n\r\n${userAgent}`);
   });
