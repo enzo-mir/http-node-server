@@ -1,5 +1,4 @@
 const net = require("net");
-console.log("Logs from your program will appear here!");
 const server = net.createServer((socket) => {
   socket.on("close", () => {
     socket.end();
@@ -7,12 +6,13 @@ const server = net.createServer((socket) => {
   });
 
   socket.on("data", (data) => {
+    const userAgent = data.toString().split("User-Agent: ", data.toString().length)[1].trim();
+
     const initialPath = data.toString().split(" ")[1];
-    const path = initialPath.includes("echo") ? initialPath.split("/")[2] : initialPath;
 
-    const response = initialPath.includes("echo") || initialPath === "/" ? "200 OK" : "404 Not Found";
+    const response = userAgent || initialPath === "/" ? "200 OK" : "404 Not Found";
 
-    socket.write(`HTTP/1.1 ${response}\r\nContent-Type: text/plain\r\nContent-Length: ${path.length}\r\n\r\n${path}`);
+    socket.write(`HTTP/1.1 ${response}\r\nContent-Type: text/plain\r\nContent-Length: ${userAgent.length}\r\n\r\n${userAgent}`);
   });
 });
 
