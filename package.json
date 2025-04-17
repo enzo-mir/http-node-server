@@ -12,6 +12,10 @@
     "author": "",
     "license": "MIT",
     "dependencies": {
-        "fs": "0.0.1-security"
+        "fs": "^0.0.1-security"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://git.codecrafters.io/bf1ea066f1ca0871"
     }
 }
