@@ -7,12 +7,11 @@ const server = net.createServer((socket) => {
   });
 
   socket.on("data", (data) => {
-    const path = data.toString().split(" ")[1];
-    const getStr = path.split("/")[2];
+    const path = path.includes("echo") ? data.toString().split(" ")[1] : path.split("/")[2];
 
-    socket.write(
-      `HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${getStr ? getStr.length : path.length}\r\n\r\n${getStr ? getStr : path}`
-    );
+    const response = path.includes("echo") ? "404 Not Found" : "200 OK";
+
+    socket.write(`HTTP/1.1 ${response}\r\nContent-Type: text/plain\r\nContent-Length: ${path.length}\r\n\r\n${path}`);
   });
 });
 
