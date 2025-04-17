@@ -14,13 +14,16 @@ const server = net.createServer((socket) => {
 
     const path = initialPath.includes("echo") ? initialPath.split("/")[2] : initialPath;
 
-    const response = acceptedPaths.map((v) => {
+    const response = (id = 0) => {
       if (initialPath.startsWith(v)) {
         return "200 OK";
       } else {
+        if (index < acceptedPaths.length) {
+          response(id++);
+        }
         return "404 Not Found";
       }
-    })[0];
+    };
 
     socket.write(
       `HTTP/1.1 ${response}\r\nContent-Type: text/plain\r\nContent-Length: ${userAgent ? userAgent.length : path.length}\r\n\r\n${userAgent || path}`
