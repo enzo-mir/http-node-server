@@ -1,6 +1,11 @@
 import { existsSync, readFileSync, mkdirSync, writeFileSync } from "fs";
 import { createServer } from "net";
 
+const getBody = (req) => {
+  const body = req.split("\r\n").slice(-1)[0];
+  return body;
+};
+
 const postFileRequest = async (filename, content) => {
   const p = filename.split("/");
   p.pop();
@@ -9,6 +14,7 @@ const postFileRequest = async (filename, content) => {
   mkdirSync(p ? process.argv[3] + `/${dirPath}` : "", { recursive: true });
 
   writeFileSync(`${process.argv[3]}/${filename}`, content);
+
   return "HTTP/1.1 201 Created\r\n\r\n";
 };
 
@@ -24,11 +30,9 @@ const server = createServer((socket) => {
       const directory = process.argv[3];
       const filename = path.split("/files/")[1];
       if (req.includes("POST")) {
-        req.split("Content-Length: ")[1].split("\r\n")[0];
-        const contentLength = parseInt(req.split("Content-Length: ")[1].split("\r\n")[0]);
-        const body = req.split("\r\n").slice(-1)[0];
+        const content = getBody(req);
+        const res = await postFileRequest(filename, content);
 
-        const res = await postFileRequest(filename, body);
         socket.write(res);
       }
       if (existsSync(`${directory}/${filename}`)) {
@@ -47,6 +51,19 @@ const server = createServer((socket) => {
       });
     } else if (path.startsWith("/echo/")) {
       const res = path.split("/echo/")[1];
+
+      const acceptContent = req
+        .split("\r\n")
+        .find((line) => line.includes("Accept-Encoding:"))
+        .split(": ")[1];
+      const contentEncoding = acceptEncoding === "invalid-encoding" ? undefined : acceptContent;
+
+      if (acceptContent) {
+        socket.write(
+          `HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n${contentEncoding ? "Content-Encoding: " + contentEncoding : ""}\r\n\r\n${res}\r\n`
+        );
+      }
+
       socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${res.length}\r\n\r\n${res}\r\n\r`);
     } else socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
     socket.end();
