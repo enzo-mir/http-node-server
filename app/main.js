@@ -77,12 +77,12 @@ const server = createServer((socket) => {
 
         const content = gzipSync(body);
         const data = new Buffer.from(content);
-        body = contentEncoding.includes("gzip") ? data.toString("hex") : body;
+        body = contentEncoding.includes("gzip") ? gzipSync(data) : body;
 
         socket.write(
-          `HTTP/1.1 200 OK\r\n${contentEncoding ? "Content-Encoding: " + contentEncoding : ""}\r\nContent-Type: text/plain\r\nContent-Length: ${
-            body.length
-          }\r\n\r\n`
+          `HTTP/1.1 200 OK\r\n${
+            contentEncoding ? "Content-Encoding: " + contentEncoding : ""
+          }\r\nContent-Type: text/plain\r\nContent-Length: ${body.length.toString()}\r\n\r\n`
         );
         socket.write(data);
         socket.end();
