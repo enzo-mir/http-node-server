@@ -62,31 +62,33 @@ const server = createServer((socket) => {
         socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
       }
     } else if (path === "/user-agent") {
-      req.split("\r\n").forEach((line) => {
+      req.split("\r\n").map((line) => {
         if (line.includes("User-Agent")) {
           const res = line.split(" ")[1];
           socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${res.length}\r\n\r\n${res}\r\n`);
         }
       });
     } else if (path.startsWith("/echo/")) {
-      let res = path.split("/echo/")[1];
+      let body = path.split("/echo/")[1];
       const contentEncoding = getAcceptContent(req);
 
       if (contentEncoding) {
-        console.log(res);
+        console.log(body);
 
-        const content = gzipSync(res);
+        const content = gzipSync(body);
         const hexaData = new Buffer.from(content).toString("hex");
-        res = contentEncoding.includes("gzip") ? hexaData : res;
+        body = contentEncoding.includes("gzip") ? hexaData : body;
 
         socket.write(
           `HTTP/1.1 200 OK\r\n${contentEncoding ? "Content-Encoding: " + contentEncoding : ""}\r\nContent-Type: text/plain\r\nContent-Length: ${
-            res.length
-          }\r\n\r\n${res}\r\n`
+            body.length
+          }`
         );
+        socket.write(`\r\n\r\n${body}\r\n`);
+        socket.end();
       }
 
-      socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${res.length}\r\n\r\n${res}\r\n\r`);
+      socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${body.length}\r\n\r\n${body}\r\n\r`);
     } else socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
     socket.end();
   });
