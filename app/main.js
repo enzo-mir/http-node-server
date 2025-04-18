@@ -18,6 +18,23 @@ const postFileRequest = async (filename, content) => {
   return "HTTP/1.1 201 Created\r\n\r\n";
 };
 
+const getAcceptContzent = (req) => {
+  const acceptContent = req
+    .split("\r\n")
+    .find((line) => line.includes("Accept-Encoding:"))
+    ?.split(": ")[1];
+
+  if (acceptContent.includes("invalid-encoding")) return undefined;
+
+  if (acceptContent.includes(",")) {
+    const content = acceptContent.split(",");
+    const validContent = content.filter((c) => !c.includes("invalid-encoding"));
+    return validContent.join(", ");
+  }
+
+  return acceptContent;
+};
+
 const server = createServer((socket) => {
   socket.on("close", () => {
     socket.end();
@@ -51,12 +68,8 @@ const server = createServer((socket) => {
       });
     } else if (path.startsWith("/echo/")) {
       const res = path.split("/echo/")[1];
-
-      const acceptContent = req
-        .split("\r\n")
-        .find((line) => line.includes("Accept-Encoding:"))
-        ?.split(": ")[1];
-      const contentEncoding = acceptContent === "invalid-encoding" ? undefined : acceptContent;
+      const acceptContent = getAcceptContzent(req);
+      const contentEncoding = acceptContent;
 
       if (acceptContent) {
         socket.write(
