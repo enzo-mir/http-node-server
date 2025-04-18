@@ -84,7 +84,7 @@ const server = createServer((socket) => {
             body.length
           }`
         );
-        socket.write(`\r\n\r\n${body}\r\n`);
+        socket.write(`${body}`);
         socket.end();
       }
 
