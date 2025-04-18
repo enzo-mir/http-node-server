@@ -26,7 +26,7 @@ const getAcceptContzent = (req) => {
 
   if (acceptContent.includes(",")) {
     const content = acceptContent.split(",");
-    const validContent = content.filter((c) => !c.includes("invalid-encoding"));
+    const validContent = content.filter((c) => !c.includes("encoding"));
 
     return validContent.join(", ");
   } else if (acceptContent.includes("invalid-encoding")) return undefined;
