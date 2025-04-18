@@ -1,8 +1,9 @@
-const fs = require("fs");
-const net = require("net");
-const { postFileRequest } = require("./post");
+import { existsSync, readFileSync } from "fs";
+import { createServer } from "net";
+import { postFileRequest } from "./post";
+
 console.log("Logs from your program will appear here!");
-const server = net.createServer((socket) => {
+const server = createServer((socket) => {
   socket.on("close", () => {
     socket.end();
   });
@@ -21,8 +22,8 @@ const server = net.createServer((socket) => {
         const res = await postFileRequest(filename, body);
         socket.write(res);
       }
-      if (fs.existsSync(`${directory}/${filename}`)) {
-        const content = fs.readFileSync(`${directory}/${filename}`).toString();
+      if (existsSync(`${directory}/${filename}`)) {
+        const content = readFileSync(`${directory}/${filename}`).toString();
         const res = `HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: ${content.length}\r\n\r\n${content}\r\n`;
         socket.write(res);
       } else {
