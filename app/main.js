@@ -80,7 +80,9 @@ const server = createServer((socket) => {
         res = contentEncoding.includes("gzip") ? hexaData : res;
 
         socket.write(
-          `HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n${contentEncoding ? "Content-Encoding: " + contentEncoding : ""}\r\nContent-Length: ${res.length}\r\n\r\n${res}\r\n`
+          `HTTP/1.1 200 OK\r\n${contentEncoding ? "Content-Encoding: " + contentEncoding : ""}\r\nContent-Type: text/plain\r\nContent-Length: ${
+            res.length
+          }\r\n\r\n${res}\r\n`
         );
       }
 
