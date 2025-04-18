@@ -47,8 +47,6 @@ const server = createServer((socket) => {
       if (req.includes("POST")) {
         const content = getBody(req);
         const res = await postFileRequest(filename, content);
-
-        socket.write(res);
       }
       if (existsSync(`${directory}/${filename}`)) {
         const content = readFileSync(`${directory}/${filename}`).toString();
@@ -82,8 +80,13 @@ const server = createServer((socket) => {
       }
 
       socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${body.length}\r\n\r\n${body}\r\n\r`);
-    } else socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
-    socket.end();
+    } else {
+      socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
+    }
+  });
+
+  socket.on("end", () => {
+    console.log("Client disconnected.");
   });
 });
 
