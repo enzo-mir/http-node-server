@@ -67,10 +67,10 @@ const server = createServer((socket) => {
       });
     } else if (path.startsWith("/echo/")) {
       const res = path.split("/echo/")[1];
-      const acceptContent = getAcceptContzent(req);
-      const contentEncoding = acceptContent;
+      const contentEncoding = getAcceptContzent(req);
 
-      if (acceptContent) {
+
+      if (contentEncoding) {
         socket.write(
           `HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n${contentEncoding ? "Content-Encoding: " + contentEncoding : ""}\r\n\r\n${res}\r\n`
         );
