@@ -1,6 +1,5 @@
 import { existsSync, readFileSync, mkdirSync, writeFileSync } from "fs";
 import { createServer } from "net";
-import { postFileRequest } from "./post";
 
 const postFileRequest = async (filename, content) => {
   const p = filename.split("/");
