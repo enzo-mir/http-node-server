@@ -55,7 +55,7 @@ const server = createServer((socket) => {
       const acceptContent = req
         .split("\r\n")
         .find((line) => line.includes("Accept-Encoding:"))
-        .split(": ")[1];
+        ?.split(": ")[1];
       const contentEncoding = acceptContent === "invalid-encoding" ? undefined : acceptContent;
 
       if (acceptContent) {
