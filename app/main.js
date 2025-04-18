@@ -36,10 +36,6 @@ const getAcceptContent = (req) => {
 };
 
 const server = createServer((socket) => {
-  socket.on("close", () => {
-    socket.end();
-  });
-
   socket.on("data", async (data) => {
     const req = data.toString();
     const path = req.split(" ")[1];
@@ -73,8 +69,6 @@ const server = createServer((socket) => {
       const contentEncoding = getAcceptContent(req);
 
       if (contentEncoding) {
-        console.log(body);
-
         const content = gzipSync(body);
         const data = new Buffer.from(content);
         body = contentEncoding.includes("gzip") ? data : body;
@@ -93,7 +87,4 @@ const server = createServer((socket) => {
   });
 });
 
-server.on("close", () => {
-  server.listen(4221, "localhost");
-});
 server.listen(4221, "localhost");
