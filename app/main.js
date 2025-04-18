@@ -29,7 +29,7 @@ const getAcceptContzent = (req) => {
     const validContent = content.filter((c) => !c.includes("encoding"));
 
     return validContent.join(", ");
-  } else if (acceptContent.includes("encoding")) return undefined;
+  } else if (acceptContent?.includes("encoding")) return undefined;
 
   return acceptContent;
 };
