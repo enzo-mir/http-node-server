@@ -6,9 +6,9 @@ const postFileRequest = async (filename, content) => {
   p.pop();
   const dirPath = p.join("/");
 
-  mkdirSync(p ? `tmp/${dirPath}` : "tmp", { recursive: true });
+  mkdirSync(p ? `/tmp/${dirPath}` : "/tmp", { recursive: true });
 
-  writeFileSync(`tmp/${filename}`, content);
+  writeFileSync(`/tmp/${filename}`, content);
   return "HTTP/1.1 201 Created\r\n\r\n";
 };
 
