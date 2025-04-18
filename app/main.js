@@ -69,7 +69,7 @@ const server = createServer((socket) => {
         }
       });
     } else if (path.startsWith("/echo/")) {
-      const res = path.split("/echo/")[1];
+      let res = path.split("/echo/")[1];
       const contentEncoding = getAcceptContent(req);
 
       if (contentEncoding) {
