@@ -1,4 +1,4 @@
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, writeFileSync } from "fs";
 
 export const postFileRequest = async (filename, content) => {
   const p = filename.split("/");
