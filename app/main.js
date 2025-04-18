@@ -1,5 +1,6 @@
 import { existsSync, readFileSync, mkdirSync, writeFileSync } from "fs";
 import { createServer } from "net";
+import { gzipSync } from "zlib";
 
 const getBody = (req) => {
   const body = req.split("\r\n").slice(-1)[0];
@@ -18,7 +19,7 @@ const postFileRequest = async (filename, content) => {
   return "HTTP/1.1 201 Created\r\n\r\n";
 };
 
-const getAcceptContzent = (req) => {
+const getAcceptContent = (req) => {
   const acceptContent = req
     .split("\r\n")
     .find((line) => line.includes("Accept-Encoding:"))
@@ -38,9 +39,11 @@ const server = createServer((socket) => {
   socket.on("close", () => {
     socket.end();
   });
+
   socket.on("data", async (data) => {
     const req = data.toString();
     const path = req.split(" ")[1];
+
     if (path === "/") socket.write("HTTP/1.1 200 OK\r\n\r\n");
     else if (path.startsWith("/files/")) {
       const directory = process.argv[3];
@@ -67,10 +70,13 @@ const server = createServer((socket) => {
       });
     } else if (path.startsWith("/echo/")) {
       const res = path.split("/echo/")[1];
-      const contentEncoding = getAcceptContzent(req);
-
+      const contentEncoding = getAcceptContent(req);
 
       if (contentEncoding) {
+        const content = gzipSync(res);
+        const hexaData = new Buffer.from(content).toString("hex");
+        res = contentEncoding.includes("gzip") ? hexaData : res;
+
         socket.write(
           `HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n${contentEncoding ? "Content-Encoding: " + contentEncoding : ""}\r\n\r\n${res}\r\n`
         );
