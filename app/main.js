@@ -1,8 +1,18 @@
-import { existsSync, readFileSync } from "fs";
+import { existsSync, readFileSync, mkdirSync, writeFileSync } from "fs";
 import { createServer } from "net";
 import { postFileRequest } from "./post";
 
-console.log("Logs from your program will appear here!");
+const postFileRequest = async (filename, content) => {
+  const p = filename.split("/");
+  p.pop();
+  const dirPath = p.join("/");
+
+  mkdirSync(p ? `tmp/${dirPath}` : "tmp", { recursive: true });
+
+  writeFileSync(`tmp/${filename}`, content);
+  return "HTTP/1.1 201 Created\r\n\r\n";
+};
+
 const server = createServer((socket) => {
   socket.on("close", () => {
     socket.end();
