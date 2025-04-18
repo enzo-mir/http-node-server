@@ -24,7 +24,7 @@ const getAcceptContzent = (req) => {
     .find((line) => line.includes("Accept-Encoding:"))
     ?.split(": ")[1];
 
-  if (acceptContent.includes(",")) {
+  if (acceptContent?.includes(",")) {
     const content = acceptContent.split(",");
     const validContent = content.filter((c) => !c.includes("encoding"));
 
