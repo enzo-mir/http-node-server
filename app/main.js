@@ -92,4 +92,8 @@ const server = createServer((socket) => {
     socket.end();
   });
 });
+
+server.on("close", () => {
+  server.listen(4221, "localhost");
+});
 server.listen(4221, "localhost");
