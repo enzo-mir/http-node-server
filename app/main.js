@@ -24,13 +24,12 @@ const getAcceptContzent = (req) => {
     .find((line) => line.includes("Accept-Encoding:"))
     ?.split(": ")[1];
 
-  if (acceptContent.includes("invalid-encoding")) return undefined;
-
   if (acceptContent.includes(",")) {
     const content = acceptContent.split(",");
     const validContent = content.filter((c) => !c.includes("invalid-encoding"));
+
     return validContent.join(", ");
-  }
+  } else if (acceptContent.includes("invalid-encoding")) return undefined;
 
   return acceptContent;
 };
