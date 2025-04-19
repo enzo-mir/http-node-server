@@ -37,14 +37,14 @@ const getAcceptContent = (req) => {
 
 const server = createServer((socket) => {
   socket.on("data", async (data) => {
-    const req = data.toString();
-    const headers = req.split("\r\n").reduce((acc, line) => {
-      const [key, value] = line.split(": ");
-      if (key && value) acc[key] = value;
-      return acc;
-    }, {});
-    const path = req.split(" ")[1];
     while (req.includes("\r\n\r\n")) {
+      const req = data.toString();
+      const headers = req.split("\r\n").reduce((acc, line) => {
+        const [key, value] = line.split(": ");
+        if (key && value) acc[key] = value;
+        return acc;
+      }, {});
+      const path = req.split(" ")[1];
       if (path === "/") {
         socket.write("HTTP/1.1 200 OK\r\n\r\n");
       } else if (path.startsWith("/files/")) {
