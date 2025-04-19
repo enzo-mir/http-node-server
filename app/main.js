@@ -37,8 +37,8 @@ const getAcceptContent = (req) => {
 
 const server = createServer((socket) => {
   socket.on("data", async (data) => {
+    const req = data.toString();
     while (req.includes("\r\n\r\n")) {
-      const req = data.toString();
       const headers = req.split("\r\n").reduce((acc, line) => {
         const [key, value] = line.split(": ");
         if (key && value) acc[key] = value;
