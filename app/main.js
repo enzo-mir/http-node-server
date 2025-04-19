@@ -39,8 +39,10 @@ const server = createServer((socket) => {
   let req = "";
   socket.on("data", async (data) => {
     req += data.toString();
+
     while (req.includes("\r\n\r\n")) {
-      const raw = req.split("\r\n\r\n");
+      const [raw, ...rest] = req.split("\r\n\r\n");
+
       const headers = raw.split("\r\n").reduce((acc, line) => {
         const [key, value] = line.split(": ");
         if (key && value) acc[key] = value;
