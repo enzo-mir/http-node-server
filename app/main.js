@@ -54,11 +54,11 @@ const server = createServer((socket) => {
         if (req.includes("POST")) {
           const content = getBody(req);
           const res = await postFileRequest(filename, content);
-        }
-        if (existsSync(`${directory}/${filename}`)) {
-          const content = readFileSync(`${directory}/${filename}`).toString();
-          const res = `HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: ${content.length}\r\n\r\n${content}\r\n`;
-          socket.write(res);
+          if (existsSync(`${directory}/${filename}`)) {
+            const content = readFileSync(`${directory}/${filename}`).toString();
+            const res = `HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: ${content.length}\r\n\r\n${content}\r\n`;
+            socket.write(res);
+          }
         } else {
           socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
         }
