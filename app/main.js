@@ -43,12 +43,22 @@ const server = createServer((socket) => {
     while (req.includes("\r\n\r\n")) {
       const [raw, ...rest] = req.split("\r\n\r\n");
 
-      const headers = raw.split("\r\n").reduce((acc, line) => {
+      let headers = {};
+      let path = "";
+      let body = "";
+      const rawLines = raw.split("\r\n");
+      path = rawLines[0]?.split(" ")[1]; // Extract path from the first line
+
+      headers = rawLines.slice(1).reduce((acc, line) => {
         const [key, value] = line.split(": ");
         if (key && value) acc[key] = value;
         return acc;
       }, {});
-      const path = raw.split(" ")[1];
+
+      if (raw.includes("\r\n\r\n")) {
+        body = getBody(raw); // Assuming getBody correctly extracts the body
+      }
+
       if (path === "/") {
         socket.write("HTTP/1.1 200 OK\r\n\r\n");
       } else if (path.startsWith("/files/")) {
