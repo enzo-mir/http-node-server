@@ -36,10 +36,11 @@ const getAcceptContent = (req) => {
 };
 
 const server = createServer((socket) => {
+  let req = "";
   socket.on("data", async (data) => {
-    const req = data.toString();
+    req += data.toString();
     while (req.includes("\r\n\r\n")) {
-      const raw = req.split("\r\n\r\n")[0];
+      const raw = req.split("\r\n\r\n");
       const headers = raw.split("\r\n").reduce((acc, line) => {
         const [key, value] = line.split(": ");
         if (key && value) acc[key] = value;
