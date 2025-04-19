@@ -38,7 +38,7 @@ const getAcceptContent = (req) => {
 const server = createServer((socket) => {
   let req = "";
   socket.on("data", async (data) => {
-    req += data.toString().trimStart();
+    req += data.toString().replace(/\r\n/g, "");
 
     while (req.includes("\r\n\r\n")) {
       const [raw, ...rest] = req.split("\r\n\r\n");
