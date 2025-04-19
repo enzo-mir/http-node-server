@@ -62,12 +62,10 @@ const server = createServer((socket) => {
           socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
         }
       } else if (path === "/user-agent") {
-        req.split("\r\n").map((line) => {
-          if (line.includes("User-Agent")) {
-            const res = line.split(" ")[1];
-            socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${res.length}\r\n\r\n${res}\r\n`);
-          }
-        });
+        if (headers["User-Agent"]) {
+          const res = headers["User-Agent"].split(" ")[1];
+          socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${res.length}\r\n\r\n${res}\r\n`);
+        }
       } else if (path.startsWith("/echo/")) {
         let body = path.split("/echo/")[1];
         const contentEncoding = getAcceptContent(req);
