@@ -97,6 +97,7 @@ const server = createServer((socket) => {
       if (headers["Connection"] && headers["Connection"].toLowerCase() === "close") {
         socket.end();
       }
+      req = rest.join("\r\n\r\n");
     }
   });
 
