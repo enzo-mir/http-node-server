@@ -52,8 +52,8 @@ const server = createServer((socket) => {
         const directory = process.argv[3];
         const filename = path.split("/files/")[1];
         let res;
-        if (req.includes("POST")) {
-          const content = getBody(req);
+        if (raw.includes("POST")) {
+          const content = getBody(raw);
           res = await postFileRequest(filename, content);
         }
         if (existsSync(`${directory}/${filename}`)) {
@@ -70,7 +70,7 @@ const server = createServer((socket) => {
         }
       } else if (path.startsWith("/echo/")) {
         let body = path.split("/echo/")[1];
-        const contentEncoding = getAcceptContent(req);
+        const contentEncoding = getAcceptContent(raw);
 
         if (contentEncoding) {
           const content = gzipSync(body);
