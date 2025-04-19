@@ -65,7 +65,8 @@ const server = createServer((socket) => {
         }
       } else if (path === "/user-agent") {
         if (headers["User-Agent"]) {
-          const res = headers["User-Agent"].split(" ")[1];
+          const res = headers["User-Agent"];
+
           socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${res.length}\r\n\r\n${res}\r\n`);
         }
       } else if (path.startsWith("/echo/")) {
