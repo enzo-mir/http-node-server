@@ -40,74 +40,78 @@ const server = createServer((socket) => {
   socket.on("data", async (data) => {
     req += data.toString();
 
-    while (req.includes("\r\n\r\n")) {
-      const [raw, ...rest] = req.split("\r\n\r\n");
+    while (true) {
+      const endOfHeaders = req.indexOf("\r\n\r\n");
 
-      let headers = {};
-      let path = "";
-      let body = "";
-      const rawLines = raw.split("\r\n");
-      path = rawLines[0]?.split(" ")[1]; // Extract path from the first line
+      if (endOfHeaders === -1) {
+        // Incomplete request, wait for more data
+        break;
+      }
 
-      headers = rawLines.slice(1).reduce((acc, line) => {
+      const rawRequest = req.substring(0, endOfHeaders + 4); // Include the \r\n\r\n
+      const remainingData = req.substring(endOfHeaders + 4);
+
+      const rawLines = rawRequest.split("\r\n");
+      const firstLine = rawLines[0];
+      const headers = rawLines.slice(1, -2).reduce((acc, line) => {
+        // Exclude the last empty line before \r\n\r\n
         const [key, value] = line.split(": ");
         if (key && value) acc[key] = value;
         return acc;
       }, {});
-
-      if (raw.includes("\r\n\r\n")) {
-        body = getBody(raw); // Assuming getBody correctly extracts the body
-      }
+      const path = firstLine?.split(" ")[1];
+      const body = rawRequest.split("\r\n\r\n")[1] || ""; // Extract body after headers
 
       if (path === "/") {
         socket.write("HTTP/1.1 200 OK\r\n\r\n");
       } else if (path.startsWith("/files/")) {
         const directory = process.argv[3];
         const filename = path.split("/files/")[1];
-        let res;
-        if (raw.includes("POST")) {
-          const content = getBody(raw);
-          res = await postFileRequest(filename, content);
-        }
-        if (existsSync(`${directory}/${filename}`)) {
+        if (rawRequest.includes("POST")) {
+          await postFileRequest(filename, body);
+          socket.write("HTTP/1.1 201 Created\r\n\r\n");
+        } else if (existsSync(`${directory}/${filename}`)) {
           const content = readFileSync(`${directory}/${filename}`).toString();
-          const res = `HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: ${content.length}\r\n\r\n${content}\r\n`;
-          socket.write(res);
+          socket.write(`HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: ${content.length}\r\n\r\n${content}\r\n`);
         } else {
           socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
         }
       } else if (path === "/user-agent") {
         if (headers["User-Agent"]) {
           const res = headers["User-Agent"];
-
           socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${res.length}\r\n\r\n${res}\r\n`);
         }
       } else if (path.startsWith("/echo/")) {
-        let body = path.split("/echo/")[1];
-        const contentEncoding = getAcceptContent(raw);
+        let echoBody = path.split("/echo/")[1] || body;
+        const contentEncoding = getAcceptContent(rawRequest); // Use the rawRequest for headers
 
         if (contentEncoding) {
-          const content = gzipSync(body);
+          const content = gzipSync(echoBody);
           const data = new Buffer.from(content);
-          body = contentEncoding.includes("gzip") ? data : body;
+          const encodedBody = contentEncoding.includes("gzip") ? data : Buffer.from(echoBody);
 
           socket.write(
-            `HTTP/1.1 200 OK\r\n${contentEncoding ? "Content-Encoding: " + contentEncoding : ""}\r\nContent-Type: text/plain\r\nContent-Length: ${
-              body.length
-            }\r\n\r\n`
+            `HTTP/1.1 200 OK\r\n${
+              contentEncoding ? "Content-Encoding: " + contentEncoding + "\r\n" : ""
+            }Content-Type: text/plain\r\nContent-Length: ${encodedBody.length}\r\n\r\n`
           );
-          socket.write(data);
+          socket.write(encodedBody);
+        } else {
+          socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${echoBody.length}\r\n\r\n${echoBody}\r\n`);
         }
-
-        socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${body.length}\r\n\r\n${body}\r\n\r`);
       } else {
         socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
       }
 
       if (headers["Connection"] && headers["Connection"].toLowerCase() === "close") {
         socket.end();
+        break; // Exit the while loop as the connection will be closed
       }
-      req = rest.join("\r\n\r\n");
+
+      // Update the 'req' buffer to contain any remaining data
+      req = remainingData;
+
+      // Continue the loop to process any subsequent complete requests in the buffer
     }
   });
 
