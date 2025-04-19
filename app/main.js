@@ -45,7 +45,7 @@ const server = createServer((socket) => {
         if (key && value) acc[key] = value;
         return acc;
       }, {});
-      const path = req.split(" ")[1];
+      const path = raw.split(" ")[1];
       if (path === "/") {
         socket.write("HTTP/1.1 200 OK\r\n\r\n");
       } else if (path.startsWith("/files/")) {
