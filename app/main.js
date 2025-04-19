@@ -39,7 +39,11 @@ const server = createServer((socket) => {
   socket.on("data", async (data) => {
     const req = data.toString();
     const path = req.split(" ")[1];
-
+    const headers = req.split("\r\n").reduce((acc, line) => {
+      const [key, value] = line.split(": ");
+      if (key && value) acc[key] = value;
+      return acc;
+    }, {});
     if (path === "/") socket.write("HTTP/1.1 200 OK\r\n\r\n");
     else if (path.startsWith("/files/")) {
       const directory = process.argv[3];
@@ -83,10 +87,16 @@ const server = createServer((socket) => {
     } else {
       socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
     }
+
+    if (headers["Connection"] && headers["Connection"].toLowerCase() === "close") {
+      socket.end();
+    }
   });
 
-  socket.on("end", () => {
-    console.log("Client disconnected.");
+  socket.on("error", (err) => {
+    console.error("Socket error:", err);
+    socket.end();
+    server.close();
   });
 });
 
